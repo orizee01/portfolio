@@ -1,13 +1,29 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App'
+import AiPage from './pages/AiPage'
+import ArticlesPage from './pages/ArticlesPage'
+import MediumPage from './pages/MediumPage'
+import CvPage from './pages/CvPage'
 import './index.css'
 import ErrorBoundary from './ErrorBoundary'
+
+const pathname = window.location.pathname || '/'
+
+const Root = pathname === '/ai' || pathname === '/ai/'
+  ? AiPage
+  : pathname === '/articles' || pathname === '/articles/'
+    ? ArticlesPage
+    : pathname === '/medium' || pathname === '/medium/'
+      ? MediumPage
+      : pathname === '/cv' || pathname === '/cv/'
+        ? CvPage
+        : App
 
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ErrorBoundary>
-      <App />
+      <Root />
     </ErrorBoundary>
   </React.StrictMode>
 )

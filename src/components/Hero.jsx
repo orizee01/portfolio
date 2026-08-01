@@ -1,9 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react'
 import Reveal from './Reveal'
+import { SITE } from '../config'
 
 export default function Hero() {
   const [imageSrc, setImageSrc] = useState(null)
+  const [activeRole, setActiveRole] = useState(0)
   const fileRef = useRef(null)
+
+  const roles = ['Backend Engineer', 'Platform Engineer']
 
   useEffect(() => {
     try {
@@ -12,6 +16,13 @@ export default function Hero() {
     } catch (e) {
       // ignore
     }
+  }, [])
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveRole(prev => (prev + 1) % roles.length)
+    }, 4000)
+    return () => clearInterval(interval)
   }, [])
 
   function handleFile(e) {
@@ -32,66 +43,112 @@ export default function Hero() {
   }
 
   return (
-    <section className="py-24">
+    <section id="hero" className="py-24 relative">
+      <style>{`
+        html { scroll-behavior: smooth; }
+        .hero-bg { position: absolute; inset: 0; background: radial-gradient(600px 400px at 10% 10%, rgba(124,58,237,0.16), transparent 10%), radial-gradient(500px 300px at 85% 80%, rgba(59,130,246,0.12), transparent 12%), linear-gradient(180deg, rgba(6,6,7,0.35), rgba(6,6,7,0.0)); pointer-events: none; z-index: -1; filter: blur(36px); }
+        .cta-primary { background: linear-gradient(90deg,#34d399,#06b6d4 60%); color: #061226; box-shadow: 0 12px 36px rgba(6,182,212,0.16); }
+        .cta-secondary { border: 1px solid rgba(148,163,184,0.16); backdrop-filter: blur(8px); background: rgba(255,255,255,0.04); }
+        .cta-ghost { border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.03); color: #f8fafc; }
+        .photo-frame { transition: transform .6s cubic-bezier(.2,.9,.2,1), box-shadow .3s; }
+        .photo-frame:hover { transform: translateY(-8px) rotate(-1deg); box-shadow: 0 40px 90px rgba(2,6,23,0.72); }
+        .orb { animation: floatOrb 6s ease-in-out infinite; will-change: transform; }
+        .orb.slow { animation-duration: 10s; }
+        @keyframes floatOrb { 0% { transform: translateY(0) } 50% { transform: translateY(-18px) } 100% { transform: translateY(0) } }
+        .accent-text { display: inline-block; animation: accentBounce 1.1s ease-out both; }
+        @keyframes accentBounce { 0% { opacity: 0; transform: translateY(-12px) skewY(-3deg); }
+          40% { opacity: 1; transform: translateY(2px) skewY(1deg); }
+          70% { transform: translateY(-2px) skewY(-1deg); }
+          100% { transform: translateY(0) skewY(0); } }
+        .role-rotate { display: inline-block; min-width: 380px; min-height: 1.2em; position: relative; overflow: hidden; }
+        .role-rotate span { display: none; opacity: 0; position: absolute; left: 0; width: 100%; white-space: nowrap; animation: roleSlideOut 0.5s ease-in-out forwards; }
+        .role-rotate span.active { display: inline-block; position: relative; animation: roleSlideIn 0.5s ease-in-out forwards; }
+        @keyframes roleSlideIn { 
+          0% { opacity: 0; transform: translateY(20px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes roleSlideOut { 
+          0% { opacity: 1; transform: translateY(0); }
+          100% { opacity: 0; transform: translateY(-20px); }
+        }
+      `}</style>
+
       <div className="grid md:grid-cols-2 gap-12 items-center">
+        <div className="hero-bg" />
+
         <div>
           <Reveal>
-            <h1 className="text-5xl font-extrabold mb-4"><span className="accent-text">Hi, I'm Orizee</span> — a Backend Developer</h1>
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold mb-4 leading-tight">
+              <span className="accent-text">Oreoluwa Ogunneye</span>
+              <span className="block text-4xl md:text-5xl lg:text-6xl mt-3 text-slate-200">
+                <span className="role-rotate">
+                  <span className={activeRole === 0 ? 'active' : ''}>Backend Engineer</span>
+                  <span className={activeRole === 1 ? 'active' : ''}>Platform Engineer</span>
+                </span>
+              </span>
+            </h1>
           </Reveal>
-          <Reveal delay={80} className="mb-6 max-w-xl">
-            <p className="text-gray-300 mb-4">I build scalable, reliable, and delightful web applications. Here's a quick snapshot of what I do:</p>
-            <ul className="space-y-2">
-              <li className="flex items-start gap-3">
-                <span className="text-emerald-400">💻</span>
-                <span className="text-gray-200">Fullstack Engineer building scalable web applications</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="text-emerald-400">🔧</span>
-                <span className="text-gray-200">Backend Engineer focused on APIs, microservices, and system architecture</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="text-emerald-400">🎨</span>
-                <span className="text-gray-200">Frontend developer creating responsive and interactive user interfaces</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="text-emerald-400">🤖</span>
-                <span className="text-gray-200">Building AI automation systems and intelligent workflows</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="text-emerald-400">☁️</span>
-                <span className="text-gray-200">Interested in DevOps, cloud infrastructure, and CI/CD pipelines</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="text-emerald-400">🧠</span>
-                <span className="text-gray-200">Learning advanced system design and cloud-native architecture</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="text-emerald-400">📈</span>
-                <span className="text-gray-200">Passionate about automation, optimization, and backend performance</span>
-              </li>
-            </ul>
+
+          <Reveal delay={80} className="mb-6 max-w-2xl">
+            <p className="text-lg md:text-xl leading-relaxed text-white/70">
+              Building resilient systems at the intersection of backend engineering, platform reliability, and cloud-native infrastructure.
+            </p>
           </Reveal>
-          <Reveal delay={160} className="flex gap-4">
-            <a className="inline-flex items-center gap-2 bg-emerald-500 text-black px-5 py-3 rounded-xl font-medium shadow btn-animated" href="#projects">View projects</a>
-            <a className="inline-flex items-center gap-2 border border-neutral-800 px-5 py-3 rounded-xl text-gray-200 btn-animated hover:bg-neutral-900/60" href="#contact">Get in touch</a>
+
+          <Reveal delay={120} className="mb-8 grid gap-3 sm:grid-cols-3 max-w-3xl">
+            <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 backdrop-blur">
+              <p className="text-2xl font-semibold text-white">50%+</p>
+              <p className="text-sm text-slate-400">Response Time Reduction</p>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 backdrop-blur">
+              <p className="text-2xl font-semibold text-white">Millions</p>
+              <p className="text-sm text-slate-400">Users Served</p>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 backdrop-blur">
+              <p className="text-2xl font-semibold text-white">5 Years</p>
+              <p className="text-sm text-slate-400">Experience</p>
+            </div>
+          </Reveal>
+
+          <Reveal delay={160} className="flex flex-wrap gap-4">
+            <a className="inline-flex items-center gap-2 px-5 py-3 rounded-xl font-medium shadow btn-animated cta-primary" href="#projects">View Work</a>
+            <a className="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-gray-200 btn-animated cta-secondary" href="mailto:gifttee2004@gmail.com">Get In Touch</a>
+            <a className="inline-flex items-center gap-2 px-5 py-3 rounded-xl btn-animated cta-ghost" href="/CV.pdf">Download CV</a>
           </Reveal>
         </div>
+
         <div className="flex justify-center">
           <Reveal delay={240} className="flex justify-center">
-            <div className="w-72 h-72 rounded-2xl shadow-2xl ring-1 ring-white/10 overflow-hidden relative bg-neutral-800 flex items-center justify-center photo-animate card-top-accent">
-              {imageSrc ? (
-                <img src={imageSrc} alt="Profile" className="object-cover w-full h-full" />
-              ) : (
-                <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-pink-600 to-rose-500 flex items-center justify-center text-white font-bold">Your Photo</div>
-              )}
+            <div className="relative">
+              <svg className="absolute -left-8 -top-8 w-24 h-24 opacity-30 orb slow" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="g1" x1="0" x2="1"><stop offset="0%" stopColor="#7c3aed" stopOpacity="0.25"/><stop offset="100%" stopColor="#ec4899" stopOpacity="0.05"/></linearGradient>
+                </defs>
+                <circle cx="50" cy="50" r="40" fill="url(#g1)" />
+              </svg>
 
-              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
-              <input ref={fileRef} onChange={handleFile} accept="image/*" type="file" className="hidden" />
-              <button onClick={() => fileRef.current && fileRef.current.click()} className="bg-gradient-to-r from-indigo-600 via-pink-600 to-rose-500 text-white text-sm px-3 py-2 rounded-md hover:scale-105 transform transition">Upload</button>
-              {imageSrc && (
-                <button onClick={clearImage} className="bg-red-600 text-sm text-white px-3 py-2 rounded-md hover:bg-red-700">Remove</button>
-              )}
-            </div>
+              <svg className="absolute -right-8 bottom-0 w-20 h-20 opacity-20 orb" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="g2" x1="0" x2="1"><stop offset="0%" stopColor="#06b6d4" stopOpacity="0.22"/><stop offset="100%" stopColor="#3b82f6" stopOpacity="0.02"/></linearGradient>
+                </defs>
+                <circle cx="50" cy="50" r="40" fill="url(#g2)" />
+              </svg>
+
+              <div className="w-72 h-72 rounded-2xl shadow-2xl ring-1 ring-white/10 overflow-hidden relative bg-neutral-800 flex items-center justify-center photo-animate card-top-accent photo-frame">
+                {imageSrc ? (
+                  <img src={imageSrc} alt="Profile" className="object-cover w-full h-full" />
+                ) : (
+                  <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-pink-600 to-rose-500 flex items-center justify-center text-white font-bold">Your Photo</div>
+                )}
+
+                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
+                  <input ref={fileRef} onChange={handleFile} accept="image/*" type="file" className="hidden" />
+                  <button onClick={() => fileRef.current && fileRef.current.click()} className="bg-gradient-to-r from-indigo-600 via-pink-600 to-rose-500 text-white text-sm px-3 py-2 rounded-md hover:scale-105 transform transition">Upload</button>
+                  {imageSrc && (
+                    <button onClick={clearImage} className="bg-red-600 text-sm text-white px-3 py-2 rounded-md hover:bg-red-700">Remove</button>
+                  )}
+                </div>
+              </div>
             </div>
           </Reveal>
         </div>

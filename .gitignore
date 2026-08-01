@@ -1,0 +1,12 @@
+# Local Netlify folder
+.netlify
+.
+.node_modules
+# Build output and temporary files
+dist/
+*.pages
+
+# Editor and OS artifacts
+*.swp
+.DS_Store
+

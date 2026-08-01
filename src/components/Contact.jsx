@@ -8,7 +8,8 @@ export default function Contact() {
         <h2 className="text-3xl font-bold mb-4 text-white">Contact</h2>
       </Reveal>
       <Reveal delay={60} className="mb-6">
-        <p className="text-gray-300">I'm available for freelance or full-time work. Reach out and let's build something great.</p>
+        <p className="text-gray-300">I'm available for freelance or full-time backend work. Reach out and let's build something great.</p>
+        <p className="text-gray-400 mt-2">Prefer direct email? <a href="mailto:gifttee2004@gmail.com" className="text-emerald-400 hover:text-emerald-300">gifttee2004@gmail.com</a></p>
       </Reveal>
       <Reveal delay={120}>
         <form className="max-w-md space-y-4 glass p-6">
