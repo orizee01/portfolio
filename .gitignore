@@ -10,3 +10,8 @@ dist/
 *.swp
 .DS_Store
 
+.vercel
+.env*
+
+
+
