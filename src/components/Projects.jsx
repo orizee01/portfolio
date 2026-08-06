@@ -7,7 +7,7 @@ const sampleProjects = [
     desc: 'Delivered the backend for an emergency care platform, improving booking accuracy, reducing triage time, and enabling real-time patient updates for ambulance and urgent care requests.',
     stack: 'TypeScript • Node.js • PostgreSQL • AWS',
     link: '#',
-    img: '/image-1784628664720.png'
+    img: '/public/Screenshot 2026-07-21 at 10.42.27 AM.png'
   },
   {
     title: 'AI Directory',
@@ -29,7 +29,7 @@ export default function Projects() {
   return (
     <section id="projects" className="py-16">
       <Reveal>
-        <h2 className="text-3xl font-bold mb-6 text-white">Projects</h2>
+        <h2 className="theme-heading text-3xl font-bold mb-6">Projects</h2>
       </Reveal>
       <div className="grid md:grid-cols-3 gap-6">
         {sampleProjects.map((p, i) => (
@@ -45,8 +45,8 @@ export default function Projects() {
                   <div className="text-white font-semibold bg-black/20 px-3 py-1 rounded">{p.title}</div>
                 </div>
               )}
-              <div className="mb-3 text-sm text-gray-400">{p.stack}</div>
-              <p className="text-sm text-gray-300 mb-4">{p.desc}</p>
+              <div className="theme-soft mb-3 text-sm">{p.stack}</div>
+              <p className="theme-muted text-sm mb-4">{p.desc}</p>
               <a href={p.link} className="text-emerald-400 text-sm font-medium">View project →</a>
             </article>
           </Reveal>

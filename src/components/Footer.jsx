@@ -35,11 +35,11 @@ function IconMail() {
 
 export default function Footer() {
   return (
-    <footer className="text-center py-6 text-sm text-gray-400">
+    <footer className="theme-footer text-center py-6 text-sm">
       © {new Date().getFullYear()} — Built with React + Tailwind
       <div className="mt-3 flex items-center justify-center gap-4">
         {SITE.email && (
-          <a href={`mailto:${SITE.email}`} title="Email" className="text-gray-400 hover:text-emerald-400 transition-colors" aria-label="Email">
+          <a href={`mailto:${SITE.email}`} title="Email" className="theme-icon-link" aria-label="Email">
             <IconMail />
           </a>
         )}
@@ -50,7 +50,7 @@ export default function Footer() {
             target="_blank"
             rel="noreferrer"
             title="LinkedIn"
-            className="text-gray-400 hover:text-emerald-400 transition-colors"
+            className="theme-icon-link"
             aria-label="LinkedIn"
           >
             <IconLinkedIn />
@@ -63,7 +63,7 @@ export default function Footer() {
             target="_blank"
             rel="noreferrer"
             title="Instagram"
-            className="text-gray-400 hover:text-emerald-400 transition-colors"
+            className="theme-icon-link"
             aria-label="Instagram"
           >
             <IconInstagram />
@@ -71,7 +71,7 @@ export default function Footer() {
         )}
 
         {SITE.github && (
-          <a href={SITE.github} target="_blank" rel="noreferrer" title="GitHub" className="text-gray-400 hover:text-emerald-400 transition-colors" aria-label="GitHub">
+          <a href={SITE.github} target="_blank" rel="noreferrer" title="GitHub" className="theme-icon-link" aria-label="GitHub">
             <IconGitHub />
           </a>
         )}

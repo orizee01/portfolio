@@ -13,8 +13,8 @@ export default function MediumPage() {
         <section className="py-24">
           <div className="max-w-4xl mx-auto text-center">
             <p className="text-sm uppercase tracking-[0.3em] text-emerald-400 mb-4">Medium</p>
-            <h1 className="text-5xl md:text-6xl font-extrabold mb-6">My Medium writing</h1>
-            <p className="text-gray-300 text-lg leading-8 mb-10">
+            <h1 className="theme-heading text-5xl md:text-6xl font-extrabold mb-6">My Medium writing</h1>
+            <p className="theme-muted text-lg leading-8 mb-10">
               Explore my latest Medium posts on software engineering, backend systems, AI, and developer productivity.
               Click below to visit my Medium profile and read the full articles.
             </p>
@@ -29,7 +29,7 @@ export default function MediumPage() {
               </a>
               <a
                 href="/"
-                className="inline-flex items-center justify-center gap-2 px-6 py-4 rounded-2xl border border-white/15 text-white hover:bg-white/10 transition-colors"
+                className="theme-button-ghost inline-flex items-center justify-center gap-2 px-6 py-4 rounded-2xl transition-colors"
               >
                 Back home
               </a>

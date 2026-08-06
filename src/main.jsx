@@ -7,6 +7,7 @@ import MediumPage from './pages/MediumPage'
 import CvPage from './pages/CvPage'
 import './index.css'
 import ErrorBoundary from './ErrorBoundary'
+import { ThemeProvider } from './components/ThemeProvider'
 
 const pathname = window.location.pathname || '/'
 
@@ -22,8 +23,10 @@ const Root = pathname === '/ai' || pathname === '/ai/'
 
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <ErrorBoundary>
-      <Root />
-    </ErrorBoundary>
+    <ThemeProvider>
+      <ErrorBoundary>
+        <Root />
+      </ErrorBoundary>
+    </ThemeProvider>
   </React.StrictMode>
 )

@@ -2,8 +2,10 @@ import React, { useEffect, useRef, useState } from 'react'
 import Reveal from './Reveal'
 import { SITE } from '../config'
 
+const PUBLIC_PROFILE_IMAGE = '/preview.jpg'
+
 export default function Hero() {
-  const [imageSrc, setImageSrc] = useState(null)
+  const [imageSrc, setImageSrc] = useState(PUBLIC_PROFILE_IMAGE)
   const [activeRole, setActiveRole] = useState(0)
   const fileRef = useRef(null)
 
@@ -37,7 +39,7 @@ export default function Hero() {
   }
 
   function clearImage() {
-    setImageSrc(null)
+    setImageSrc(PUBLIC_PROFILE_IMAGE)
     try { localStorage.removeItem('profileImage') } catch (e) {}
     if (fileRef.current) fileRef.current.value = ''
   }
@@ -46,10 +48,10 @@ export default function Hero() {
     <section id="hero" className="py-24 relative">
       <style>{`
         html { scroll-behavior: smooth; }
-        .hero-bg { position: absolute; inset: 0; background: radial-gradient(600px 400px at 10% 10%, rgba(124,58,237,0.16), transparent 10%), radial-gradient(500px 300px at 85% 80%, rgba(59,130,246,0.12), transparent 12%), linear-gradient(180deg, rgba(6,6,7,0.35), rgba(6,6,7,0.0)); pointer-events: none; z-index: -1; filter: blur(36px); }
+        .hero-bg { position: absolute; inset: 0; background: radial-gradient(600px 400px at 10% 10%, rgba(124,58,237,0.16), transparent 10%), radial-gradient(500px 300px at 85% 80%, rgba(59,130,246,0.12), transparent 12%), linear-gradient(180deg, var(--hero-layer), transparent); pointer-events: none; z-index: -1; filter: blur(36px); }
         .cta-primary { background: linear-gradient(90deg,#34d399,#06b6d4 60%); color: #061226; box-shadow: 0 12px 36px rgba(6,182,212,0.16); }
-        .cta-secondary { border: 1px solid rgba(148,163,184,0.16); backdrop-filter: blur(8px); background: rgba(255,255,255,0.04); }
-        .cta-ghost { border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.03); color: #f8fafc; }
+        .cta-secondary { border: 1px solid var(--border-strong); backdrop-filter: blur(8px); background: var(--surface-strong); }
+        .cta-ghost { border: 1px solid var(--border-strong); background: color-mix(in srgb, var(--surface-strong) 70%, transparent); color: var(--text-strong); }
         .photo-frame { transition: transform .6s cubic-bezier(.2,.9,.2,1), box-shadow .3s; }
         .photo-frame:hover { transform: translateY(-8px) rotate(-1deg); box-shadow: 0 40px 90px rgba(2,6,23,0.72); }
         .orb { animation: floatOrb 6s ease-in-out infinite; will-change: transform; }
@@ -80,7 +82,7 @@ export default function Hero() {
           <Reveal>
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold mb-4 leading-tight">
               <span className="accent-text">Oreoluwa Ogunneye</span>
-              <span className="block text-4xl md:text-5xl lg:text-6xl mt-3 text-slate-200">
+              <span className="theme-heading block text-4xl md:text-5xl lg:text-6xl mt-3">
                 <span className="role-rotate">
                   <span className={activeRole === 0 ? 'active' : ''}>Backend Engineer</span>
                   <span className={activeRole === 1 ? 'active' : ''}>Platform Engineer</span>
@@ -90,30 +92,30 @@ export default function Hero() {
           </Reveal>
 
           <Reveal delay={80} className="mb-6 max-w-2xl">
-            <p className="text-lg md:text-xl leading-relaxed text-white/70">
+            <p className="text-lg md:text-xl leading-relaxed" style={{ color: 'var(--hero-copy)' }}>
               Building resilient systems at the intersection of backend engineering, platform reliability, and cloud-native infrastructure.
             </p>
           </Reveal>
 
           <Reveal delay={120} className="mb-8 grid gap-3 sm:grid-cols-3 max-w-3xl">
-            <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 backdrop-blur">
-              <p className="text-2xl font-semibold text-white">50%+</p>
-              <p className="text-sm text-slate-400">Response Time Reduction</p>
+            <div className="theme-panel rounded-2xl px-4 py-3">
+              <p className="theme-heading text-2xl font-semibold">50%+</p>
+              <p className="text-sm" style={{ color: 'var(--hero-stat)' }}>Response Time Reduction</p>
             </div>
-            <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 backdrop-blur">
-              <p className="text-2xl font-semibold text-white">Millions</p>
-              <p className="text-sm text-slate-400">Users Served</p>
+            <div className="theme-panel rounded-2xl px-4 py-3">
+              <p className="theme-heading text-2xl font-semibold">Millions</p>
+              <p className="text-sm" style={{ color: 'var(--hero-stat)' }}>Users Served</p>
             </div>
-            <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 backdrop-blur">
-              <p className="text-2xl font-semibold text-white">5 Years</p>
-              <p className="text-sm text-slate-400">Experience</p>
+            <div className="theme-panel rounded-2xl px-4 py-3">
+              <p className="theme-heading text-2xl font-semibold">5 Years</p>
+              <p className="text-sm" style={{ color: 'var(--hero-stat)' }}>Experience</p>
             </div>
           </Reveal>
 
           <Reveal delay={160} className="flex flex-wrap gap-4">
             <a className="inline-flex items-center gap-2 px-5 py-3 rounded-xl font-medium shadow btn-animated cta-primary" href="#projects">View Work</a>
-            <a className="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-gray-200 btn-animated cta-secondary" href="mailto:gifttee2004@gmail.com">Get In Touch</a>
-            <a className="inline-flex items-center gap-2 px-5 py-3 rounded-xl btn-animated cta-ghost" href="/CV.pdf">Download CV</a>
+            <a className="inline-flex items-center gap-2 px-5 py-3 rounded-xl btn-animated cta-secondary" href="mailto:gifttee2004@gmail.com">Get In Touch</a>
+            <a className="inline-flex items-center gap-2 px-5 py-3 rounded-xl btn-animated cta-ghost" href="/Oreoluwa_Ogunneye_-_Senior_Software_Engineer__Typescript__Node.Js__SQL__MongoDB__Nest.JS__React.pdf">Download CV</a>
           </Reveal>
         </div>
 
@@ -134,9 +136,14 @@ export default function Hero() {
                 <circle cx="50" cy="50" r="40" fill="url(#g2)" />
               </svg>
 
-              <div className="w-72 h-72 rounded-2xl shadow-2xl ring-1 ring-white/10 overflow-hidden relative bg-neutral-800 flex items-center justify-center photo-animate card-top-accent photo-frame">
+              <div className="theme-panel-solid w-72 h-72 rounded-2xl shadow-2xl overflow-hidden relative flex items-center justify-center photo-animate card-top-accent photo-frame">
                 {imageSrc ? (
-                  <img src={imageSrc} alt="Profile" className="object-cover w-full h-full" />
+                  <img
+                    src={imageSrc}
+                    alt="Profile"
+                    className="object-cover w-full h-full"
+                    onError={() => setImageSrc(null)}
+                  />
                 ) : (
                   <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-pink-600 to-rose-500 flex items-center justify-center text-white font-bold">Your Photo</div>
                 )}

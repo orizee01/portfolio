@@ -7,9 +7,9 @@ export default function Background() {
         .animated-bg {
           position: absolute;
           inset: 0;
-          background: radial-gradient(circle at 10% 20%, rgba(124,58,237,0.16), transparent 12%),
-                      radial-gradient(circle at 80% 80%, rgba(236,72,153,0.12), transparent 12%),
-                      radial-gradient(circle at 50% 50%, rgba(59,130,246,0.09), transparent 18%);
+          background: radial-gradient(circle at 10% 20%, var(--bg-blob-1), transparent 12%),
+                      radial-gradient(circle at 80% 80%, var(--bg-blob-2), transparent 12%),
+                      radial-gradient(circle at 50% 50%, var(--bg-blob-3), transparent 18%);
           animation: bgShift 24s ease-in-out infinite;
           transform-origin: center;
           filter: blur(72px);
@@ -55,8 +55,8 @@ export default function Background() {
       <svg className="absolute left-0 top-1/4 opacity-20 -z-10 rotating-ring" width="700" height="700" viewBox="0 0 700 700" fill="none" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <radialGradient id="ringGrad" cx="0.5" cy="0.5">
-            <stop offset="0%" stopColor="#fff" stopOpacity="0.18" />
-            <stop offset="60%" stopColor="#7c3aed" stopOpacity="0.06" />
+            <stop offset="0%" stopColor="var(--ring-core)" />
+            <stop offset="60%" stopColor="var(--ring-mid)" />
             <stop offset="100%" stopColor="#ec4899" stopOpacity="0" />
           </radialGradient>
         </defs>
@@ -74,7 +74,7 @@ export default function Background() {
 
       {/* floating twinkle dots */}
       <svg className="absolute left-1/2 top-24 opacity-60 -z-10" width="380" height="200" viewBox="0 0 380 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <g fill="#ffffff">
+        <g fill="var(--twinkle)">
           <circle className="floating-dot" cx="40" cy="160" r="3" fillOpacity="0.25" />
           <circle className="floating-dot" cx="110" cy="140" r="4" fillOpacity="0.18" />
           <circle className="floating-dot" cx="200" cy="170" r="2.5" fillOpacity="0.22" />

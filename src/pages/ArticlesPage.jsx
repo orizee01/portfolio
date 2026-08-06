@@ -28,8 +28,8 @@ export default function ArticlesPage() {
         <section className="py-24">
           <div className="max-w-4xl mx-auto text-center">
             <p className="text-sm uppercase tracking-[0.3em] text-emerald-400 mb-4">Articles</p>
-            <h1 className="text-5xl md:text-6xl font-extrabold mb-6">Writing and stories on Medium</h1>
-            <p className="text-gray-300 text-lg leading-8 mb-10">
+            <h1 className="theme-heading text-5xl md:text-6xl font-extrabold mb-6">Writing and stories on Medium</h1>
+            <p className="theme-muted text-lg leading-8 mb-10">
               I write about backend engineering, web development, AI, and systems design on Medium.
               Explore the card titles below and click through to read the full articles.
             </p>
@@ -37,9 +37,9 @@ export default function ArticlesPage() {
 
           <div className="grid gap-6 md:grid-cols-3 mb-16">
             {sampleArticles.map(article => (
-              <article key={article.title} className="rounded-3xl border border-white/10 bg-slate-900/80 p-6 shadow-xl shadow-black/20 transition-transform duration-300 hover:-translate-y-1 hover:border-emerald-400">
+              <article key={article.title} className="theme-panel-solid rounded-3xl p-6 transition-transform duration-300 hover:-translate-y-1 hover:border-emerald-400">
                 <p className="text-xs uppercase tracking-[0.3em] text-emerald-400 mb-3">Article</p>
-                <h2 className="text-xl font-semibold text-white mb-4">{article.title}</h2>
+                <h2 className="theme-heading text-xl font-semibold mb-4">{article.title}</h2>
                 <a href={article.link} className="text-emerald-400 text-sm font-medium hover:text-emerald-300">
                   Read title →
                 </a>
@@ -58,7 +58,7 @@ export default function ArticlesPage() {
             </a>
             <a
               href="/"
-              className="inline-flex items-center justify-center gap-2 px-6 py-4 rounded-2xl border border-white/15 text-white hover:bg-white/10 transition-colors"
+              className="theme-button-ghost inline-flex items-center justify-center gap-2 px-6 py-4 rounded-2xl transition-colors"
             >
               Back home
             </a>

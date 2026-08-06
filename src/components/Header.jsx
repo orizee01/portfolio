@@ -1,5 +1,6 @@
 import React from 'react'
 import { SITE } from '../config'
+import ThemeToggle from './ThemeToggle'
 
 function IconGitHub() {
   return (
@@ -36,20 +37,21 @@ function IconMail() {
 export default function Header() {
   return (
     <header className="fixed inset-x-0 top-0 z-40 py-4">
-      <div className="container mx-auto px-6 flex items-center justify-between">
-        <a href="/" className="text-lg font-semibold reveal reveal--visible hover:text-white transition-colors">
+      <div className="container mx-auto px-6 flex flex-wrap items-center justify-between gap-4">
+        <a href="/" className="theme-brand text-lg font-semibold reveal reveal--visible transition-colors">
           <span className="accent-text">{SITE.title}</span>-style Portfolio
         </a>
-        <nav className="flex items-center gap-4 text-sm">
-          <a href="/ai" className="text-gray-300 hover:text-white">AI</a>
-          <a href="/articles" className="text-gray-300 hover:text-white">Articles</a>
-          <a href="/medium" className="text-gray-300 hover:text-white">Medium</a>
-          <a href="/cv" className="text-gray-300 hover:text-white">CV</a>
-          <a href="/#projects" className="text-gray-300 hover:text-white">Projects</a>
-          <a href="/#contact" className="text-gray-300 hover:text-white">Contact</a>
-          <a href="/CV.pdf" target="_blank" rel="noreferrer" className="text-gray-300 hover:text-white">Resume</a>
+        <nav className="flex flex-wrap items-center justify-end gap-4 text-sm">
+          <a href="/ai" className="theme-nav-link">AI</a>
+          <a href="/articles" className="theme-nav-link">Articles</a>
+          <a href="/medium" className="theme-nav-link">Medium</a>
+          <a href="/cv" className="theme-nav-link">CV</a>
+          <a href="/#projects" className="theme-nav-link">Projects</a>
+          <a href="/#contact" className="theme-nav-link">Contact</a>
+          <a href="/Oreoluwa_Ogunneye_-_Senior_Software_Engineer__Typescript__Node.Js__SQL__MongoDB__Nest.JS__React.pdf" target="_blank" rel="noreferrer" className="theme-nav-link">Resume</a>
+          <ThemeToggle />
           {SITE.email && (
-            <a href={`mailto:${SITE.email}`} title="Email" className="text-gray-300 hover:text-emerald-400 transition-colors" aria-label="Email">
+            <a href={`mailto:${SITE.email}`} title="Email" className="theme-icon-link" aria-label="Email">
               <IconMail />
             </a>
           )}
@@ -59,7 +61,7 @@ export default function Header() {
               target="_blank"
               rel="noreferrer"
               title="LinkedIn"
-              className="text-gray-300 hover:text-emerald-400 transition-colors"
+              className="theme-icon-link"
               aria-label="LinkedIn"
             >
               <IconLinkedIn />
@@ -71,14 +73,14 @@ export default function Header() {
               target="_blank"
               rel="noreferrer"
               title="Instagram"
-              className="text-gray-300 hover:text-emerald-400 transition-colors"
+              className="theme-icon-link"
               aria-label="Instagram"
             >
               <IconInstagram />
             </a>
           )}
           {SITE.github && (
-            <a href={SITE.github} target="_blank" rel="noreferrer" title="GitHub" className="text-gray-300 hover:text-emerald-400 transition-colors" aria-label="GitHub">
+            <a href={SITE.github} target="_blank" rel="noreferrer" title="GitHub" className="theme-icon-link" aria-label="GitHub">
               <IconGitHub />
             </a>
           )}
