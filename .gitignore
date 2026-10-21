@@ -1,17 +1,15 @@
-# Local Netlify folder
-.netlify
-.
-.node_modules
-# Build output and temporary files
+# Dependencies
+node_modules/
+
+# Build output
 dist/
-*.pages
+
+# Local env / tooling
+.env*
+!.env.example
+.vercel
+.netlify
 
 # Editor and OS artifacts
 *.swp
 .DS_Store
-
-.vercel
-.env*
-
-
-

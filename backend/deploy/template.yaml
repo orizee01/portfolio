@@ -1,0 +1,121 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Portfolio backend (Express on Lambda + Function URL, images in S3)
+
+Parameters:
+  AllowedOrigins:
+    Type: String
+    Default: http://localhost:5173
+    Description: Comma-separated frontend origins allowed by CORS
+  UploadToken:
+    Type: String
+    NoEcho: true
+  ResendApiKey:
+    Type: String
+    NoEcho: true
+  ResendToEmail:
+    Type: String
+  ResendFromEmail:
+    Type: String
+    Default: onboarding@resend.dev
+
+Resources:
+  UploadsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub portfolio-uploads-${AWS::AccountId}-${AWS::Region}
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        IgnorePublicAcls: true
+        BlockPublicPolicy: false
+        RestrictPublicBuckets: false
+      CorsConfiguration:
+        CorsRules:
+          - AllowedMethods: [GET]
+            AllowedOrigins: ["*"]
+            AllowedHeaders: ["*"]
+
+  UploadsBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref UploadsBucket
+      PolicyDocument:
+        Statement:
+          # Images are public; only the objects, never the listing.
+          - Sid: PublicReadImages
+            Effect: Allow
+            Principal: "*"
+            Action: s3:GetObject
+            Resource: !Sub ${UploadsBucket.Arn}/*
+
+  FunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub portfolio-backend-${AWS::Region}
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal: { Service: lambda.amazonaws.com }
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: uploads
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action: [s3:PutObject, s3:DeleteObject]
+                Resource: !Sub ${UploadsBucket.Arn}/*
+              - Effect: Allow
+                Action: s3:ListBucket
+                Resource: !GetAtt UploadsBucket.Arn
+
+  Function:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: portfolio-backend
+      Runtime: nodejs20.x
+      Handler: src/lambda.handler
+      Role: !GetAtt FunctionRole.Arn
+      MemorySize: 512
+      Timeout: 20
+      Environment:
+        Variables:
+          ALLOWED_ORIGINS: !Ref AllowedOrigins
+          UPLOAD_TOKEN: !Ref UploadToken
+          UPLOAD_BUCKET: !Ref UploadsBucket
+          RESEND_API_KEY: !Ref ResendApiKey
+          RESEND_TO_EMAIL: !Ref ResendToEmail
+          RESEND_FROM_EMAIL: !Ref ResendFromEmail
+      # Placeholder; deploy.sh uploads the real bundle right after the stack is created.
+      Code:
+        ZipFile: |
+          exports.handler = async () => ({ statusCode: 503, body: "not deployed yet" });
+
+  FunctionUrl:
+    Type: AWS::Lambda::Url
+    Properties:
+      TargetFunctionArn: !Ref Function
+      AuthType: NONE
+
+  FunctionUrlPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref Function
+      Action: lambda:InvokeFunctionUrl
+      Principal: "*"
+      FunctionUrlAuthType: NONE
+
+  # Public Function URLs need both permissions (InvokeFunctionUrl above and this one).
+  FunctionInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref Function
+      Action: lambda:InvokeFunction
+      Principal: "*"
+      InvokedViaFunctionUrl: true
+
+Outputs:
+  ApiUrl:
+    Value: !GetAtt FunctionUrl.FunctionUrl
+  UploadsBucketName:
+    Value: !Ref UploadsBucket
