@@ -1,18 +1,21 @@
 import React, { useEffect, useRef, useState } from 'react'
 import Reveal from './Reveal'
 import { SITE } from '../config'
+import { API_URL, adminFetch, useAdmin } from '../lib/admin'
 
 const PUBLIC_PROFILE_IMAGE = null
-const API_URL = import.meta.env.VITE_API_URL || ''
-// Upload controls are for the site owner: open the page with ?edit in the URL.
-const IS_OWNER = new URLSearchParams(window.location.search).has('edit')
+const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+const MAX_BYTES = 5 * 1024 * 1024
 
 export default function Hero() {
   const [imageSrc, setImageSrc] = useState(PUBLIC_PROFILE_IMAGE)
   const [activeRole, setActiveRole] = useState(0)
-  const [busy, setBusy] = useState(false)
+  const [busy, setBusy] = useState('') // '' or a status label such as 'Uploading…'
   const [uploadError, setUploadError] = useState('')
+  const [dragging, setDragging] = useState(false)
   const fileRef = useRef(null)
+  // Photo controls are shown only to a logged-in admin (the backend enforces it too).
+  const { admin: isAdmin } = useAdmin()
 
   const roles = ['Backend Engineer', 'Platform Engineer']
 
@@ -33,58 +36,54 @@ export default function Hero() {
     return () => clearInterval(interval)
   }, [])
 
-  function getToken() {
-    let token = sessionStorage.getItem('uploadToken')
-    if (!token) {
-      token = window.prompt('Upload token')
-      if (token) sessionStorage.setItem('uploadToken', token)
-    }
-    return token
-  }
-
-  async function callApi(path, options) {
-    const token = getToken()
-    if (!token) return null
-    const response = await fetch(`${API_URL}${path}`, {
-      ...options,
-      headers: { Authorization: `Bearer ${token}` },
-    })
-    const data = await response.json().catch(() => ({}))
-    if (!response.ok) {
-      if (response.status === 401) sessionStorage.removeItem('uploadToken')
-      throw new Error(data.error || 'Request failed')
-    }
-    return data
-  }
-
-  async function handleFile(e) {
+  function handleFile(e) {
     const file = e.target.files && e.target.files[0]
-    if (!file) return
-    setBusy(true)
+    if (file) uploadFile(file)
+  }
+
+  function handleDrop(e) {
+    e.preventDefault()
+    setDragging(false)
+    const file = e.dataTransfer.files && e.dataTransfer.files[0]
+    if (file && !busy) uploadFile(file)
+  }
+
+  async function uploadFile(file) {
+    // Same rules as the backend, checked here so mistakes show up instantly.
+    if (!ACCEPTED_TYPES.includes(file.type)) {
+      setUploadError('Use a JPG, PNG, WebP or GIF image.')
+      return
+    }
+    if (file.size > MAX_BYTES) {
+      setUploadError('Image must be 5MB or smaller.')
+      return
+    }
+    setBusy('Uploading…')
     setUploadError('')
     try {
       const body = new FormData()
       body.append('image', file)
-      const data = await callApi('/api/upload?folder=profile', { method: 'POST', body })
-      if (data) setImageSrc(data.url)
+      const data = await adminFetch('/api/upload?folder=profile', { method: 'POST', body })
+      setImageSrc(data.url)
     } catch (err) {
       setUploadError(err.message)
     } finally {
-      setBusy(false)
+      setBusy('')
       if (fileRef.current) fileRef.current.value = ''
     }
   }
 
   async function clearImage() {
-    setBusy(true)
+    if (!window.confirm('Remove your profile photo?')) return
+    setBusy('Removing…')
     setUploadError('')
     try {
-      const data = await callApi('/api/profile-image', { method: 'DELETE' })
-      if (data) setImageSrc(PUBLIC_PROFILE_IMAGE)
+      await adminFetch('/api/profile-image', { method: 'DELETE' })
+      setImageSrc(PUBLIC_PROFILE_IMAGE)
     } catch (err) {
       setUploadError(err.message)
     } finally {
-      setBusy(false)
+      setBusy('')
     }
   }
 
@@ -106,7 +105,7 @@ export default function Hero() {
           40% { opacity: 1; transform: translateY(2px) skewY(1deg); }
           70% { transform: translateY(-2px) skewY(-1deg); }
           100% { transform: translateY(0) skewY(0); } }
-        .role-rotate { display: inline-block; min-width: 380px; min-height: 1.2em; position: relative; overflow: hidden; }
+        .role-rotate { display: inline-block; min-width: min(380px, 100%); min-height: 1.2em; position: relative; overflow: hidden; }
         .role-rotate span { display: none; opacity: 0; position: absolute; left: 0; width: 100%; white-space: nowrap; animation: roleSlideOut 0.5s ease-in-out forwards; }
         .role-rotate span.active { display: inline-block; position: relative; animation: roleSlideIn 0.5s ease-in-out forwards; }
         @keyframes roleSlideIn { 
@@ -180,58 +179,86 @@ export default function Hero() {
                 <circle cx="50" cy="50" r="40" fill="url(#g2)" />
               </svg>
 
-              <div className="theme-panel-solid relative w-72 h-72 sm:w-80 sm:h-80 md:w-[28rem] md:h-[28rem] rounded-[36px] shadow-[0_40px_120px_rgba(15,23,42,0.28)] overflow-hidden flex items-center justify-center photo-animate photo-frame border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(124,58,237,0.14),transparent_30%),radial-gradient(circle_at_bottom_right,rgba(59,130,246,0.12),transparent_30%)]">
+              <div
+                {...(isAdmin && {
+                  onDragOver: e => { e.preventDefault(); setDragging(true) },
+                  onDragLeave: () => setDragging(false),
+                  onDrop: handleDrop,
+                })}
+                className="theme-panel-solid relative w-72 h-72 sm:w-80 sm:h-80 md:w-[28rem] md:h-[28rem] rounded-[36px] shadow-[0_40px_120px_rgba(15,23,42,0.28)] overflow-hidden flex items-center justify-center photo-animate photo-frame border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(124,58,237,0.14),transparent_30%),radial-gradient(circle_at_bottom_right,rgba(59,130,246,0.12),transparent_30%)]"
+              >
                 <div className="pointer-events-none absolute inset-0 rounded-[36px] ring-1 ring-white/10" />
+                {isAdmin && (
+                  <input ref={fileRef} onChange={handleFile} accept={ACCEPTED_TYPES.join(',')} type="file" className="hidden" />
+                )}
+
                 {imageSrc ? (
                   <img
                     src={imageSrc}
-                    alt="Profile"
+                    alt="Oreoluwa Ogunneye"
                     className="object-cover w-full h-full"
                     onError={() => setImageSrc(null)}
                   />
+                ) : isAdmin ? (
+                  // Admin, no photo yet: the whole frame is the upload target.
+                  <button
+                    type="button"
+                    onClick={() => fileRef.current && fileRef.current.click()}
+                    disabled={!!busy}
+                    className="absolute inset-3 flex flex-col items-center justify-center gap-3 rounded-[28px] border-2 border-dashed border-emerald-400/40 px-6 text-center transition hover:border-emerald-400/80 hover:bg-emerald-400/5"
+                  >
+                    <span className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-400 text-slate-950 shadow-lg shadow-emerald-500/20">
+                      <UploadIcon className="h-7 w-7" />
+                    </span>
+                    <span className="theme-heading text-xl font-semibold">Upload a profile photo</span>
+                    <span className="theme-muted text-sm">Click or drag an image here</span>
+                    <span className="theme-soft text-xs">JPG, PNG, WebP or GIF · up to 5MB</span>
+                  </button>
                 ) : (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 rounded-[36px] bg-slate-950/90 px-6 text-center text-white">
-                    <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 shadow-xl shadow-slate-950/40">
-                      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="opacity-90">
-                        <path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-4.42 0-8 1.79-8 4v2h16v-2c0-2.21-3.58-4-8-4z" fill="currentColor" />
-                      </svg>
-                    </div>
-                    <div className="text-2xl font-semibold">Profile preview</div>
-                    <p className="text-base text-white/70 max-w-[18rem]">Upload a picture to make this hero section more personal.</p>
+                  // Visitors, no photo yet: a neutral monogram instead of upload instructions.
+                  <div className="flex h-full w-full items-center justify-center">
+                    <span className="accent-text select-none text-8xl font-extrabold tracking-tight opacity-90">OO</span>
                   </div>
                 )}
 
-                {IS_OWNER && (
-                <div className="absolute inset-x-0 bottom-4 px-4">
-                  {uploadError && <p className="mb-2 text-center text-sm text-rose-300">{uploadError}</p>}
-                  <div className="mx-auto flex w-full max-w-[22rem] items-center justify-center gap-3 rounded-full border border-white/10 bg-black/30 px-3 py-2 backdrop-blur-lg shadow-[0_20px_80px_rgba(0,0,0,0.15)]">
-                    <input ref={fileRef} onChange={handleFile} accept="image/*" type="file" className="hidden" />
-                    <button
-                      onClick={() => fileRef.current && fileRef.current.click()}
-                      disabled={busy}
-                      aria-label="Upload profile image"
-                      className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-emerald-400 text-slate-950 transition hover:scale-[1.02]"
-                    >
-                      <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6">
-                        <path d="M12 3v10m0 0l-4-4m4 4l4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                        <path d="M5 17h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                      </svg>
-                    </button>
-                    {imageSrc && (
-                      <button
-                        onClick={clearImage}
-                        disabled={busy}
-                        aria-label="Remove profile image"
-                        className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-white/10 text-white transition hover:bg-white/20"
-                      >
-                        <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6">
-                          <path d="M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                          <path d="M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                        </svg>
-                      </button>
-                    )}
+                {isAdmin && dragging && (
+                  <div className="pointer-events-none absolute inset-3 flex items-center justify-center rounded-[28px] border-2 border-dashed border-emerald-400 bg-slate-950/70 text-lg font-semibold text-white backdrop-blur-sm">
+                    Drop to upload
                   </div>
-                </div>
+                )}
+
+                {busy && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-slate-950/60 text-white backdrop-blur-sm" role="status">
+                    <span className="h-10 w-10 animate-spin rounded-full border-4 border-white/20 border-t-emerald-400" />
+                    <span className="text-sm font-medium">{busy}</span>
+                  </div>
+                )}
+
+                {isAdmin && uploadError && (
+                  <div className="absolute inset-x-4 top-4 flex items-start gap-2 rounded-2xl bg-rose-500/90 px-4 py-2.5 text-sm text-white shadow-lg" role="alert">
+                    <span className="flex-1">{uploadError}</span>
+                    <button type="button" onClick={() => setUploadError('')} aria-label="Dismiss error" className="font-bold leading-none opacity-80 hover:opacity-100">×</button>
+                  </div>
+                )}
+
+                {isAdmin && imageSrc && !busy && (
+                  <div className="absolute inset-x-0 bottom-4 flex justify-center gap-2 px-4">
+                    <button
+                      type="button"
+                      onClick={() => fileRef.current && fileRef.current.click()}
+                      className="inline-flex items-center gap-2 rounded-full bg-emerald-400 px-4 py-2.5 text-sm font-semibold text-slate-950 shadow-lg transition hover:bg-emerald-300"
+                    >
+                      <UploadIcon className="h-4 w-4" />
+                      Change photo
+                    </button>
+                    <button
+                      type="button"
+                      onClick={clearImage}
+                      className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-slate-950/60 px-4 py-2.5 text-sm font-semibold text-white backdrop-blur-md transition hover:bg-slate-950/80"
+                    >
+                      Remove
+                    </button>
+                  </div>
                 )}
               </div>
             </div>
@@ -239,5 +266,14 @@ export default function Hero() {
         </div>
       </div>
     </section>
+  )
+}
+
+function UploadIcon({ className }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
+      <path d="M12 16V4m0 0l-4 4m4-4l4 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M5 20h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </svg>
   )
 }

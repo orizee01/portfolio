@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { authorized } from "../lib/auth.js";
+import { adminConfigured, authorized } from "../lib/auth.js";
 import { latestImageUrl, removeImages, storageDriver } from "../lib/storage.js";
 
 const router = Router();
@@ -20,7 +20,7 @@ router.get("/", async (req, res) => {
 
 // Owner only: remove the profile photo.
 router.delete("/", async (req, res) => {
-  if (!process.env.UPLOAD_TOKEN || !storageDriver()) return res.status(503).json({ error: "Upload service is not configured." });
+  if (!adminConfigured() || !storageDriver()) return res.status(503).json({ error: "Upload service is not configured." });
   if (!authorized(req)) return res.status(401).json({ error: "Unauthorized" });
   try {
     await removeImages("profile", baseUrlOf(req));

@@ -1,10 +1,14 @@
 #!/usr/bin/env bash
 # Deploys the backend to AWS (stack: portfolio-backend). Run from the backend folder:
-#   UPLOAD_TOKEN=... RESEND_API_KEY=... RESEND_TO_EMAIL=... ALLOWED_ORIGINS=https://site.com ./deploy/deploy.sh
+#   set -a; . ./.env; . ./.env.aws; set +a; ./deploy/deploy.sh
+# Needs ADMIN_PASSWORD, SESSION_SECRET, RESEND_API_KEY, RESEND_TO_EMAIL (and ALLOWED_ORIGINS).
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-: "${UPLOAD_TOKEN:?set UPLOAD_TOKEN}" "${RESEND_API_KEY:?set RESEND_API_KEY}" "${RESEND_TO_EMAIL:?set RESEND_TO_EMAIL}"
+: "${ADMIN_PASSWORD:?set ADMIN_PASSWORD}" "${SESSION_SECRET:?set SESSION_SECRET}"
+: "${RESEND_API_KEY:?set RESEND_API_KEY}" "${RESEND_TO_EMAIL:?set RESEND_TO_EMAIL}"
+# Only the hash of the admin password is sent to AWS.
+ADMIN_PASSWORD_HASH=$(node scripts/hash-password.js "$ADMIN_PASSWORD")
 STACK=portfolio-backend
 export AWS_REGION="${AWS_REGION:-us-east-1}"
 # Deploy with the dedicated, least-privilege user (see create-deployer.sh), not an admin profile.
@@ -18,7 +22,9 @@ aws cloudformation deploy \
   --no-fail-on-empty-changeset \
   --parameter-overrides \
     "AllowedOrigins=${ALLOWED_ORIGINS:-http://localhost:5173}" \
-    "UploadToken=$UPLOAD_TOKEN" \
+    "AdminUsername=${ADMIN_USERNAME:-admin}" \
+    "AdminPasswordHash=$ADMIN_PASSWORD_HASH" \
+    "SessionSecret=$SESSION_SECRET" \
     "ResendApiKey=$RESEND_API_KEY" \
     "ResendToEmail=$RESEND_TO_EMAIL" \
     "ResendFromEmail=${RESEND_FROM_EMAIL:-onboarding@resend.dev}"

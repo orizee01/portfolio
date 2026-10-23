@@ -3,7 +3,7 @@ import multer from "multer";
 import { randomUUID } from "node:crypto";
 import { createRateLimiter } from "../lib/rateLimit.js";
 import { detectImageType } from "../lib/imageType.js";
-import { authorized } from "../lib/auth.js";
+import { adminConfigured, authorized } from "../lib/auth.js";
 import { saveImage, removeImages, storageDriver } from "../lib/storage.js";
 
 const MAX_BYTES = 5 * 1024 * 1024;
@@ -17,8 +17,8 @@ const upload = multer({
 const router = Router();
 
 router.post("/", (req, res) => {
-  if (!process.env.UPLOAD_TOKEN || !storageDriver()) {
-    console.error("Upload service misconfigured: set UPLOAD_TOKEN (and BLOB_READ_WRITE_TOKEN in production)");
+  if (!adminConfigured() || !storageDriver()) {
+    console.error("Upload service misconfigured: set the ADMIN_* settings and a storage backend");
     return res.status(503).json({ error: "Upload service is not configured." });
   }
   if (!authorized(req)) return res.status(401).json({ error: "Unauthorized" });

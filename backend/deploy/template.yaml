@@ -6,9 +6,17 @@ Parameters:
     Type: String
     Default: http://localhost:5173
     Description: Comma-separated frontend origins allowed by CORS
-  UploadToken:
+  AdminUsername:
+    Type: String
+    Default: admin
+  AdminPasswordHash:
     Type: String
     NoEcho: true
+    Description: scrypt hash from scripts/hash-password.js (deploy.sh computes it)
+  SessionSecret:
+    Type: String
+    NoEcho: true
+    MinLength: 32
   ResendApiKey:
     Type: String
     NoEcho: true
@@ -40,12 +48,14 @@ Resources:
       Bucket: !Ref UploadsBucket
       PolicyDocument:
         Statement:
-          # Images are public; only the objects, never the listing.
+          # Only image folders are public (objects, never the listing). messages/ stays private.
           - Sid: PublicReadImages
             Effect: Allow
             Principal: "*"
             Action: s3:GetObject
-            Resource: !Sub ${UploadsBucket.Arn}/*
+            Resource:
+              - !Sub ${UploadsBucket.Arn}/images/*
+              - !Sub ${UploadsBucket.Arn}/profile/*
 
   FunctionRole:
     Type: AWS::IAM::Role
@@ -63,7 +73,7 @@ Resources:
           PolicyDocument:
             Statement:
               - Effect: Allow
-                Action: [s3:PutObject, s3:DeleteObject]
+                Action: [s3:PutObject, s3:GetObject, s3:DeleteObject]
                 Resource: !Sub ${UploadsBucket.Arn}/*
               - Effect: Allow
                 Action: s3:ListBucket
@@ -81,7 +91,9 @@ Resources:
       Environment:
         Variables:
           ALLOWED_ORIGINS: !Ref AllowedOrigins
-          UPLOAD_TOKEN: !Ref UploadToken
+          ADMIN_USERNAME: !Ref AdminUsername
+          ADMIN_PASSWORD_HASH: !Ref AdminPasswordHash
+          SESSION_SECRET: !Ref SessionSecret
           UPLOAD_BUCKET: !Ref UploadsBucket
           RESEND_API_KEY: !Ref ResendApiKey
           RESEND_TO_EMAIL: !Ref ResendToEmail

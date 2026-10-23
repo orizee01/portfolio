@@ -6,6 +6,8 @@ import ArticlesPage from './pages/ArticlesPage'
 import MediumPage from './pages/MediumPage'
 import CvPage from './pages/CvPage'
 import UploadPage from './pages/UploadPage'
+import MessagesPage from './pages/MessagesPage'
+import AdminPage from './pages/AdminPage'
 import './index.css'
 import ErrorBoundary from './ErrorBoundary'
 import { ThemeProvider } from './components/ThemeProvider'
@@ -22,7 +24,11 @@ const Root = pathname === '/ai' || pathname === '/ai/'
         ? CvPage
         : pathname === '/upload' || pathname === '/upload/'
           ? UploadPage
-          : App
+          : pathname === '/messages' || pathname === '/messages/'
+            ? MessagesPage
+            : pathname === '/admin' || pathname === '/admin/'
+              ? AdminPage
+              : App
 
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>

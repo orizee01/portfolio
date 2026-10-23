@@ -1,10 +1,11 @@
-import { timingSafeEqual } from "node:crypto";
+import { verifySession } from "./session.js";
 
+export function adminConfigured() {
+  return Boolean(process.env.ADMIN_USERNAME && process.env.ADMIN_PASSWORD_HASH && process.env.SESSION_SECRET);
+}
+
+// True when the request carries a valid admin session ("Authorization: Bearer <token>").
 export function authorized(req) {
-  const expected = process.env.UPLOAD_TOKEN;
-  const given = (req.get("authorization") || "").replace(/^Bearer\s+/i, "");
-  if (!expected || !given) return false;
-  const a = Buffer.from(given);
-  const b = Buffer.from(expected);
-  return a.length === b.length && timingSafeEqual(a, b);
+  const token = (req.get("authorization") || "").replace(/^Bearer\s+/i, "");
+  return Boolean(token && verifySession(token));
 }

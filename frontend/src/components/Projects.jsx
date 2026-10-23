@@ -7,7 +7,7 @@ const sampleProjects = [
     desc: 'Delivered the backend for an emergency care platform, improving booking accuracy, reducing triage time, and enabling real-time patient updates for ambulance and urgent care requests.',
     stack: 'TypeScript • Node.js • PostgreSQL • AWS',
     link: '#',
-    img: '/public/Screenshot 2026-07-21 at 10.42.27 AM.png'
+    img: '/Screenshot 2026-07-21 at 10.42.27 AM.png'
   },
   {
     title: 'AI Directory',

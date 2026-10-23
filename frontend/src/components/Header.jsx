@@ -1,6 +1,7 @@
 import React from 'react'
 import { SITE } from '../config'
 import ThemeToggle from './ThemeToggle'
+import { logout, useAdmin } from '../lib/admin'
 
 function IconGitHub() {
   return (
@@ -35,6 +36,8 @@ function IconMail() {
 }
 
 export default function Header() {
+  const { admin } = useAdmin()
+
   return (
     <header className="fixed inset-x-0 top-0 z-40 py-4">
       <div className="container mx-auto px-6 flex flex-wrap items-center justify-between gap-4">
@@ -45,10 +48,16 @@ export default function Header() {
           <a href="/ai" className="theme-nav-link">AI</a>
           <a href="/articles" className="theme-nav-link">Articles</a>
           <a href="/medium" className="theme-nav-link">Medium</a>
-          <a href="/public/CV.pdf" className="theme-nav-link">CV</a>
+          <a href="/CV.pdf" className="theme-nav-link">CV</a>
           <a href="/#projects" className="theme-nav-link">Projects</a>
           <a href="/#contact" className="theme-nav-link">Contact</a>
           <a href="/CV.pdf" target="_blank" rel="noreferrer" className="theme-nav-link">Resume</a>
+          {admin && (
+            <>
+              <a href="/admin" className="rounded-full border border-emerald-400/40 px-3 py-1 text-emerald-400 hover:bg-emerald-400/10">Admin</a>
+              <button type="button" onClick={logout} className="theme-nav-link">Log out</button>
+            </>
+          )}
           <ThemeToggle />
           {SITE.email && (
             <a href={`mailto:${SITE.email}`} title="Email" className="theme-icon-link" aria-label="Email">

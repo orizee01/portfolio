@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { createRateLimiter } from "../lib/rateLimit.js";
+import { saveMessage, messageDriver } from "../lib/messages.js";
 
 const LIMITS = { name: 100, email: 254, message: 5000 };
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -22,8 +23,10 @@ router.post("/", async (req, res) => {
   const to = process.env.RESEND_TO_EMAIL;
   const from = process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
 
-  if (!apiKey || !to) {
-    console.error("Contact service misconfigured: missing Resend API key or RESEND_TO_EMAIL");
+  const emailConfigured = Boolean(apiKey && to);
+
+  if (!emailConfigured && !messageDriver()) {
+    console.error("Contact service misconfigured: no Resend settings and no message storage");
     return res.status(500).json({ error: "Contact service is not configured." });
   }
 
@@ -53,6 +56,27 @@ router.post("/", async (req, res) => {
     return res.status(429).json({ error: "Too many messages. Please try again later." });
   }
 
+  // Save first so the message reaches the inbox page even if the email fails.
+  let saved = false;
+  if (messageDriver()) {
+    try {
+      await saveMessage({ name, email, message });
+      saved = true;
+    } catch (error) {
+      console.error("Saving contact message failed:", error);
+    }
+  }
+
+  const emailed = emailConfigured && (await sendEmail({ apiKey, to, from, name, email, message }));
+
+  if (!saved && !emailed) {
+    return res.status(502).json({ error: "Could not send your message. Please try again later." });
+  }
+  res.json({ ok: true });
+});
+
+// Returns true when Resend accepted the email; failures are logged, never thrown.
+async function sendEmail({ apiKey, to, from, name, email, message }) {
   // Strip control characters (incl. CR/LF) from values used in the subject header.
   const subjectName = name.replace(/[\u0000-\u001f\u007f]/g, " ");
 
@@ -77,14 +101,13 @@ router.post("/", async (req, res) => {
 
     if (!response.ok) {
       console.error("Resend error:", response.status, await response.text());
-      return res.status(502).json({ error: "Could not send your message. Please try again later." });
+      return false;
     }
-
-    res.json({ ok: true });
+    return true;
   } catch (error) {
-    console.error("Contact handler failed:", error);
-    res.status(500).json({ error: "Server error. Please try again later." });
+    console.error("Sending contact email failed:", error);
+    return false;
   }
-});
+}
 
 export default router;

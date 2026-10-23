@@ -2,12 +2,14 @@ import React, { useEffect, useState } from 'react'
 import Header from '../components/Header'
 import Background from '../components/Background'
 import Footer from '../components/Footer'
+import { adminFetch, useAdmin } from '../lib/admin'
+import { AdminLoginRequired } from './AdminPage'
 
 const MAX_BYTES = 5 * 1024 * 1024
 const ACCEPT = 'image/jpeg,image/png,image/gif,image/webp'
 
 export default function UploadPage() {
-  const [token, setToken] = useState('')
+  const { checking, admin } = useAdmin()
   const [file, setFile] = useState(null)
   const [preview, setPreview] = useState('')
   const [status, setStatus] = useState('')
@@ -48,13 +50,7 @@ export default function UploadPage() {
     body.append('image', file)
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/upload`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-        body,
-      })
-      const data = await response.json().catch(() => ({}))
-      if (!response.ok) throw new Error(data.error || 'Upload failed')
+      const data = await adminFetch('/api/upload', { method: 'POST', body })
       setUrl(data.url)
       setStatus('success')
     } catch (err) {
@@ -82,19 +78,11 @@ export default function UploadPage() {
           <h1 className="theme-heading mt-4 text-3xl font-bold">Upload an image</h1>
           <p className="theme-muted mt-2">JPEG, PNG, GIF or WebP, up to 5MB.</p>
 
+          {checking && <p className="theme-muted mt-6">Checking your session…</p>}
+          {!checking && !admin && <AdminLoginRequired />}
+
+          {admin && (
           <form onSubmit={handleSubmit} className="glass mt-6 space-y-4 p-6">
-            <div>
-              <label htmlFor="token" className="theme-muted block text-sm font-medium">Upload token</label>
-              <input
-                id="token"
-                type="password"
-                value={token}
-                onChange={(e) => setToken(e.target.value)}
-                autoComplete="off"
-                className="theme-input mt-1 block w-full rounded px-3 py-2 input-focus"
-                required
-              />
-            </div>
             <div>
               <label htmlFor="image" className="theme-muted block text-sm font-medium">Image</label>
               <input
@@ -133,6 +121,7 @@ export default function UploadPage() {
               </div>
             )}
           </form>
+          )}
         </section>
       </main>
       <Footer />
