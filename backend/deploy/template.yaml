@@ -84,7 +84,7 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       FunctionName: portfolio-backend
-      Runtime: nodejs20.x
+      Runtime: nodejs24.x
       Handler: src/lambda.handler
       Role: !GetAtt FunctionRole.Arn
       MemorySize: 512
