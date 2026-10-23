@@ -31,7 +31,7 @@ app.use("/api/profile-image", profileRouter);
 app.use("/api/project-images", projectImagesRouter);
 app.use("/api/messages", messagesRouter);
 
-// Locally stored uploads (dev only; production uses Vercel Blob URLs).
+// Locally stored uploads (development and Docker; production serves images from S3).
 if (storageDriver() === "local") {
   app.use("/uploads", express.static(UPLOAD_DIR, { index: false, setHeaders: (res) => res.set("X-Content-Type-Options", "nosniff") }));
 }

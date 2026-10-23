@@ -32,7 +32,7 @@ before(async () => {
     RESEND_API_KEY: "",
     RESEND_TO_EMAIL: "",
   });
-  for (const key of ["UPLOAD_BUCKET", "BLOB_READ_WRITE_TOKEN", "VERCEL"]) delete process.env[key];
+  for (const key of ["UPLOAD_BUCKET", "VERCEL"]) delete process.env[key];
 
   const { default: app } = await import("../src/index.js");
   await new Promise((resolve) => {

@@ -1,4 +1,3 @@
-import { put, list, del } from "@vercel/blob";
 import { S3Client, PutObjectCommand, ListObjectsV2Command, DeleteObjectsCommand } from "@aws-sdk/client-s3";
 import { mkdir, writeFile, readdir, stat, unlink } from "node:fs/promises";
 import path from "node:path";
@@ -7,11 +6,9 @@ import { fileURLToPath } from "node:url";
 // UPLOAD_DIR can be overridden (tests point it at a temporary folder).
 export const UPLOAD_DIR = process.env.UPLOAD_DIR || path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../uploads");
 
-// S3 when UPLOAD_BUCKET is set (AWS), Vercel Blob when a token is configured (Vercel's disk is
-// read-only), otherwise the local ./uploads folder for development.
+// S3 when UPLOAD_BUCKET is set (AWS), otherwise the local ./uploads folder (development, Docker).
 export function storageDriver() {
   if (process.env.UPLOAD_BUCKET) return "s3";
-  if (process.env.BLOB_READ_WRITE_TOKEN) return "blob";
   if (process.env.VERCEL) return null;
   return "local";
 }
@@ -35,15 +32,6 @@ export async function saveImage(folder, filename, buffer, contentType, baseUrl) 
     return s3Url(key);
   }
 
-  if (storageDriver() === "blob") {
-    const blob = await put(`${folder}/${filename}`, buffer, {
-      access: "public",
-      contentType,
-      addRandomSuffix: false,
-    });
-    return blob.url;
-  }
-
   await mkdir(path.join(UPLOAD_DIR, folder), { recursive: true });
   await writeFile(path.join(UPLOAD_DIR, folder, filename), buffer);
   return `${baseUrl}/uploads/${folder}/${filename}`;
@@ -56,13 +44,6 @@ async function listImages(folder, baseUrl) {
       new ListObjectsV2Command({ Bucket: process.env.UPLOAD_BUCKET, Prefix: `${folder}/` })
     );
     return Contents.sort((a, b) => b.LastModified - a.LastModified).map((o) => ({ url: s3Url(o.Key), ref: o.Key }));
-  }
-
-  if (storageDriver() === "blob") {
-    const { blobs } = await list({ prefix: `${folder}/` });
-    return blobs
-      .sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt))
-      .map((blob) => ({ url: blob.url, ref: blob.url }));
   }
 
   const dir = path.join(UPLOAD_DIR, folder);
@@ -98,9 +79,5 @@ export async function removeImages(folder, baseUrl, keepUrl = null) {
     }
     return;
   }
-  if (storageDriver() === "blob") {
-    if (doomed.length) await del(doomed.map((img) => img.ref));
-  } else {
-    await Promise.all(doomed.map((img) => unlink(img.ref)));
-  }
+  await Promise.all(doomed.map((img) => unlink(img.ref)));
 }
