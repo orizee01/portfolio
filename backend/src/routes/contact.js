@@ -1,20 +1,12 @@
 import { Router } from "express";
 import { createRateLimiter } from "../lib/rateLimit.js";
 import { saveMessage, messageDriver } from "../lib/messages.js";
+import { contactEmail } from "../lib/contactEmail.js";
 
 const LIMITS = { name: 100, email: 254, message: 5000 };
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const WINDOW_MS = 10 * 60 * 1000;
 const isLimited = createRateLimiter({ windowMs: WINDOW_MS, max: 5 });
-
-function escapeHtml(value) {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-}
 
 const router = Router();
 
@@ -58,16 +50,17 @@ router.post("/", async (req, res) => {
 
   // Save first so the message reaches the inbox page even if the email fails.
   let saved = false;
+  let receivedAt = new Date();
   if (messageDriver()) {
     try {
-      await saveMessage({ name, email, message });
+      receivedAt = new Date((await saveMessage({ name, email, message })).createdAt);
       saved = true;
     } catch (error) {
       console.error("Saving contact message failed:", error);
     }
   }
 
-  const emailed = emailConfigured && (await sendEmail({ apiKey, to, from, name, email, message }));
+  const emailed = emailConfigured && (await sendEmail({ apiKey, to, from, name, email, message, receivedAt }));
 
   if (!saved && !emailed) {
     return res.status(502).json({ error: "Could not send your message. Please try again later." });
@@ -76,26 +69,20 @@ router.post("/", async (req, res) => {
 });
 
 // Returns true when Resend accepted the email; failures are logged, never thrown.
-async function sendEmail({ apiKey, to, from, name, email, message }) {
-  // Strip control characters (incl. CR/LF) from values used in the subject header.
-  const subjectName = name.replace(/[\u0000-\u001f\u007f]/g, " ");
-
+async function sendEmail({ apiKey, to, from, name, email, message, receivedAt }) {
   try {
+    const { subject, html, text } = contactEmail({ name, email, message, receivedAt });
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+      // Show a friendly sender name, unless RESEND_FROM_EMAIL already has one ("Name <addr>").
       body: JSON.stringify({
-        from,
+        from: from.includes("<") ? from : `Portfolio contact form <${from}>`,
         to: [to],
         reply_to: email,
-        subject: `New contact message from ${subjectName}`,
-        html: `
-          <p><strong>Name:</strong> ${escapeHtml(name)}</p>
-          <p><strong>Email:</strong> ${escapeHtml(email)}</p>
-          <p><strong>Message:</strong></p>
-          <p>${escapeHtml(message).replace(/\r?\n/g, "<br />")}</p>
-        `,
-        text: `Name: ${name}\nEmail: ${email}\n\n${message}`,
+        subject,
+        html,
+        text,
       }),
     });
 

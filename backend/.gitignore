@@ -7,3 +7,5 @@ node_modules/
 uploads/
 data/
 .admin-login.local.txt
+.env.aws
+

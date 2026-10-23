@@ -1,9 +1,12 @@
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import Reveal from './Reveal'
+import Toast from './Toast'
 
 export default function Contact() {
   const [status, setStatus] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
+  const [toast, setToast] = useState(null)
+  const closeToast = useCallback(() => setToast(null), [])
 
   const buttonLabel =
     status === 'sending'
@@ -48,6 +51,7 @@ export default function Contact() {
       if (response.ok) {
         setStatus('success')
         form.reset()
+        setToast({ type: 'success', title: 'Message sent successfully', message: "Thanks for reaching out. I'll get back to you soon." })
       } else {
         const errorBody = await response.json().catch(() => ({}))
         setErrorMessage(errorBody.error || 'Unable to send message')
@@ -61,6 +65,7 @@ export default function Contact() {
 
   return (
     <section id="contact" className="py-16">
+      {toast && <Toast {...toast} onClose={closeToast} />}
       <Reveal>
         <h2 className="theme-heading text-3xl font-bold mb-4">Contact</h2>
       </Reveal>
