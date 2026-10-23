@@ -11,8 +11,11 @@ cd "$(dirname "$0")/.."
 ADMIN_PASSWORD_HASH=$(node scripts/hash-password.js "$ADMIN_PASSWORD")
 STACK=portfolio-backend
 export AWS_REGION="${AWS_REGION:-us-east-1}"
-# Deploy with the dedicated, least-privilege user (see create-deployer.sh), not an admin profile.
-export AWS_PROFILE="${AWS_PROFILE:-portfolio}"
+# Locally, deploy with the dedicated least-privilege profile (see create-deployer.sh).
+# In GitHub Actions the role's temporary credentials are already in the environment.
+if [ -z "${AWS_ACCESS_KEY_ID:-}" ]; then
+  export AWS_PROFILE="${AWS_PROFILE:-portfolio}"
+fi
 
 aws cloudformation deploy \
   --stack-name "$STACK" \

@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 
 // Contact messages are private: S3 under messages/ (not publicly readable, see the bucket policy)
 // or, in development, ./data/messages, which is never served over HTTP.
-const DATA_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../data/messages");
+const DATA_DIR = process.env.MESSAGES_DIR || path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../data/messages");
 const PREFIX = "messages/";
 const MAX_LIST = 200;
 const ID_RE = /^\d{13}-[0-9a-f-]{36}$/;

@@ -1,0 +1,59 @@
+# CI: build the frontend and test the backend on every pull request and push to main.
+# The frontend is deployed by Vercel's GitHub integration; the backend by deploy-backend.yml.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  frontend:
+    name: Frontend build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run build
+
+  backend:
+    name: Backend tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20 # same as the Lambda runtime
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - name: Production dependencies have no known vulnerabilities
+        run: npm audit --omit=dev --audit-level=high
+
+  infrastructure:
+    name: CloudFormation lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install cfn-lint
+      # Errors fail the build; style warnings are reported but do not.
+      - run: cfn-lint --non-zero-exit-code error backend/deploy/template.yaml

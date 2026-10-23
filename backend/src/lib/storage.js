@@ -4,7 +4,8 @@ import { mkdir, writeFile, readdir, stat, unlink } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-export const UPLOAD_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../uploads");
+// UPLOAD_DIR can be overridden (tests point it at a temporary folder).
+export const UPLOAD_DIR = process.env.UPLOAD_DIR || path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../uploads");
 
 // S3 when UPLOAD_BUCKET is set (AWS), Vercel Blob when a token is configured (Vercel's disk is
 // read-only), otherwise the local ./uploads folder for development.

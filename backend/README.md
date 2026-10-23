@@ -29,7 +29,12 @@ Deploy as its own Vercel project with **Root Directory** set to `backend`
 (Vercel detects Express from `src/index.js`), then set the env vars from
 `.env.example`. Set `VITE_API_URL` on the frontend project to the backend's URL.
 
+## Tests
+`npm test` runs the API end to end against temporary folders (no email is sent, local uploads are untouched).
+
 ## Deploy to AWS (Lambda + Function URL + S3)
+Pushes to `main` that change `backend/` deploy automatically (see the root README, CI/CD). Manual deploy:
+
 One-time: run `./deploy/create-deployer.sh` with admin credentials. It creates the IAM user
 `portfolio-deployer` (access limited to this stack) and the AWS CLI profile `portfolio`, which `deploy.sh` uses.
 
