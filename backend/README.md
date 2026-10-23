@@ -7,9 +7,11 @@ Express API for the portfolio. Self-contained project (own `package.json` and de
 | `GET /api/health` | Liveness check |
 | `POST /api/auth/login` | `{ username, password }` → `{ token }` (7-day admin session). 10 attempts / 15 min per IP |
 | `GET /api/auth/me` | `{ admin: true }` when the Bearer session is valid |
-| `POST /api/upload` | multipart field `image` (JPEG/PNG/GIF/WebP, ≤5MB), admin session (`Authorization: Bearer <token from /api/auth/login>`) → `{ url }`. Add `?folder=profile` to set the site's profile photo |
+| `POST /api/upload` | multipart field `image` (JPEG/PNG/GIF/WebP, ≤5MB), admin session (`Authorization: Bearer <token from /api/auth/login>`) → `{ url }`. Add `?folder=profile` to set the site's profile photo, or `?project=<id>` to set a project's picture |
 | `GET /api/profile-image` | Public. `{ url }` of the current profile photo (or `null`) |
 | `DELETE /api/profile-image` | Admin. Removes the profile photo |
+| `GET /api/project-images?ids=a,b` | Public. `{ images: { id: url } }` for projects with an uploaded picture |
+| `DELETE /api/project-images/:id` | Admin. Removes a project's picture (back to the default) |
 | `GET /api/messages` | Admin. Saved contact messages, newest first |
 | `DELETE /api/messages/:id` | Admin. Deletes one message |
 | `POST /api/contact` | `{ name, email, message }` → saves the message (S3 / `data/`) and emails the owner via Resend |

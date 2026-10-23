@@ -98,3 +98,13 @@ export function useAdmin() {
 
   return state
 }
+
+// Same rules as the backend upload route, checked in the browser so mistakes show instantly.
+export const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+export const MAX_IMAGE_BYTES = 5 * 1024 * 1024
+
+export function imageProblem(file) {
+  if (!IMAGE_TYPES.includes(file.type)) return 'Use a JPG, PNG, WebP or GIF image.'
+  if (file.size > MAX_IMAGE_BYTES) return 'Image must be 5MB or smaller.'
+  return ''
+}

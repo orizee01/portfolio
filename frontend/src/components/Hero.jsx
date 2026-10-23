@@ -1,11 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react'
 import Reveal from './Reveal'
 import { SITE } from '../config'
-import { API_URL, adminFetch, useAdmin } from '../lib/admin'
+import { API_URL, IMAGE_TYPES, adminFetch, imageProblem, useAdmin } from '../lib/admin'
 
 const PUBLIC_PROFILE_IMAGE = null
-const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
-const MAX_BYTES = 5 * 1024 * 1024
 
 export default function Hero() {
   const [imageSrc, setImageSrc] = useState(PUBLIC_PROFILE_IMAGE)
@@ -49,13 +47,9 @@ export default function Hero() {
   }
 
   async function uploadFile(file) {
-    // Same rules as the backend, checked here so mistakes show up instantly.
-    if (!ACCEPTED_TYPES.includes(file.type)) {
-      setUploadError('Use a JPG, PNG, WebP or GIF image.')
-      return
-    }
-    if (file.size > MAX_BYTES) {
-      setUploadError('Image must be 5MB or smaller.')
+    const problem = imageProblem(file)
+    if (problem) {
+      setUploadError(problem)
       return
     }
     setBusy('Uploading…')
@@ -189,7 +183,7 @@ export default function Hero() {
               >
                 <div className="pointer-events-none absolute inset-0 rounded-[36px] ring-1 ring-white/10" />
                 {isAdmin && (
-                  <input ref={fileRef} onChange={handleFile} accept={ACCEPTED_TYPES.join(',')} type="file" className="hidden" />
+                  <input ref={fileRef} onChange={handleFile} accept={IMAGE_TYPES.join(',')} type="file" className="hidden" />
                 )}
 
                 {imageSrc ? (

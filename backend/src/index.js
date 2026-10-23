@@ -6,6 +6,7 @@ import uploadRouter from "./routes/upload.js";
 import profileRouter from "./routes/profile.js";
 import messagesRouter from "./routes/messages.js";
 import authRouter from "./routes/auth.js";
+import projectImagesRouter from "./routes/projectImages.js";
 import { storageDriver, UPLOAD_DIR } from "./lib/storage.js";
 
 const app = express();
@@ -27,6 +28,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/contact", contactRouter);
 app.use("/api/upload", uploadRouter);
 app.use("/api/profile-image", profileRouter);
+app.use("/api/project-images", projectImagesRouter);
 app.use("/api/messages", messagesRouter);
 
 // Locally stored uploads (dev only; production uses Vercel Blob URLs).
