@@ -13,3 +13,4 @@ dist/
 # Editor and OS artifacts
 *.swp
 .DS_Store
+!frontend/.env.production
