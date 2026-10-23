@@ -33,7 +33,8 @@ router.post("/login", async (req, res) => {
 
   // Always run the password check so a wrong username takes as long as a wrong password.
   const passwordOk = await verifyPassword(password, process.env.ADMIN_PASSWORD_HASH);
-  if (!passwordOk || !sameText(username, process.env.ADMIN_USERNAME)) {
+  // Usernames are not case-sensitive (phones like to capitalise the first letter).
+  if (!passwordOk || !sameText(username.trim().toLowerCase(), process.env.ADMIN_USERNAME.toLowerCase())) {
     return res.status(401).json({ error: "Wrong username or password." });
   }
 

@@ -33,7 +33,8 @@ function LoginForm() {
     setStatus('loading')
     setError('')
     try {
-      await login(username.trim(), password)
+      // Pasted credentials often carry stray spaces; phones capitalise the first letter.
+      await login(username.trim().toLowerCase(), password.trim())
     } catch (err) {
       setError(err.message)
       setStatus('')
@@ -49,6 +50,9 @@ function LoginForm() {
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           autoComplete="username"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
           className="theme-input mt-1 block w-full rounded px-3 py-2 input-focus"
           required
         />
