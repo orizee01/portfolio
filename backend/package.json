@@ -8,7 +8,7 @@
     "dev": "nodemon --watch src --watch .env --exec \"node --env-file-if-exists=.env src/index.js\"",
     "start": "node src/index.js",
     "hash-password": "node scripts/hash-password.js",
-    "test": "node --test test/"
+    "test": "node --test test/*.test.js"
   },
   "engines": {
     "node": ">=20.6"
