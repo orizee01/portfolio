@@ -46,6 +46,33 @@ jobs:
       - name: Production dependencies have no known vulnerabilities
         run: npm audit --omit=dev --audit-level=high
 
+  docker:
+    name: Docker images
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build both images and start the stack
+        run: docker compose up --build --detach --wait --wait-timeout 180
+      - name: Smoke test through nginx
+        run: |
+          set -e
+          curl -fsS http://localhost:8080/ | grep -q '<div id="root">'
+          curl -fsS http://localhost:8080/admin | grep -q '<div id="root">'   # SPA fallback
+          curl -fsS http://localhost:8080/api/health | grep -q '"ok":true'   # proxied to the backend
+          status=$(curl -s -o /dev/null -w '%{http_code}' -X POST http://localhost:8080/api/contact \
+            -H 'Content-Type: application/json' -d '{"name":"CI","email":"not-an-email","message":"hi"}')
+          test "$status" = 400                                               # backend validation via proxy
+          status=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/api/messages)
+          test "$status" = 503                                               # no admin configured in CI
+          docker compose exec -T backend sh -c 'test "$(id -u)" != 0'          # backend is not root
+          echo "Docker stack OK"
+      - name: Container logs
+        if: failure()
+        run: docker compose logs
+      - name: Stop the stack
+        if: always()
+        run: docker compose down --volumes
+
   infrastructure:
     name: CloudFormation lint
     runs-on: ubuntu-latest

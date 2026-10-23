@@ -1,0 +1,31 @@
+# Run the whole portfolio in containers:   docker compose up --build
+# Site: http://localhost:8080 (the backend is reached through it at /api).
+#
+# Settings come from backend/.env if it exists (Resend key, admin login, ...); without it
+# the site still runs, but email and the admin login are disabled.
+services:
+  backend:
+    build: ./backend
+    env_file:
+      - path: backend/.env
+        required: false
+    environment:
+      PORT: "4000"
+      ALLOWED_ORIGINS: http://localhost:8080
+      UPLOAD_DIR: /data/uploads
+      MESSAGES_DIR: /data/messages
+    volumes:
+      - backend-data:/data # uploaded images and contact messages survive restarts
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "8080:8080"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  backend-data:
