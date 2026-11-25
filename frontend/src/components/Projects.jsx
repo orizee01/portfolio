@@ -13,21 +13,14 @@ const sampleProjects = [
     link: '#',
     img: '/Screenshot%202026-07-21%20at%2010.42.27%E2%80%AFAM.png'
   },
+
   {
-    id: 'ai-directory',
-    title: 'AI Directory',
-    desc: 'Built the backend infrastructure for an AI tools marketplace with secure accounts, content workflows, Stripe payments, and scalable background processing.',
-    stack: 'Node.js • PostgreSQL • Stripe • Redis',
-    link: '#',
-    img: '/Coming%20soon.png'
-  },
-  {
-    id: 'paysmosmo',
-    title: 'Paysmosmo Backend API',
-    desc: 'Implemented a scalable e-commerce backend API with authentication, order orchestration, payment handling, and reliable data sync across services.',
-    stack: 'TypeScript • Node.js • PostgreSQL • TypeORM',
-    link: '#',
-    img: '/case.avif'
+    id: 'swiftdrop',
+    title: 'SwiftDrop Logistics',
+    desc: 'A delivery platform where customers book pickups and track packages door to door, dispatchers assign riders, and riders update delivery status from their own dashboard.',
+    stack: 'React • REST API • AWS',
+    link: 'http://swiftdrop-alb-1710904503.eu-west-1.elb.amazonaws.com/login',
+    img: '/swiftdrop.png'
   }
 ]
 
