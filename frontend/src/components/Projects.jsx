@@ -17,8 +17,8 @@ const sampleProjects = [
   {
     id: 'swiftdrop',
     title: 'SwiftDrop Logistics',
-    desc: 'A delivery platform where customers book pickups and track packages door to door, dispatchers assign riders, and riders update delivery status from their own dashboard.',
-    stack: 'React • REST API • AWS',
+    desc: 'Built the full stack, frontend and backend, for a delivery platform where customers book pickups and track packages door to door, dispatchers assign riders, and riders update delivery status from their own dashboard.',
+    stack: 'Full-stack • React • Node.js • TypeScript • REST API • AWS',
     link: 'http://swiftdrop-alb-1710904503.eu-west-1.elb.amazonaws.com/login',
     img: '/swiftdrop.png'
   }
